@@ -13,7 +13,7 @@ async def send_message(writer, message):
     logging.debug(f'message {message} has been sent')
 
 
-async def register(reader, writer, username):
+async def register(reader, writer, nickname):
     data = await reader.readline()
     logging.debug(data.decode())
 
@@ -22,7 +22,7 @@ async def register(reader, writer, username):
     data = await reader.readline()
     logging.debug(data.decode())
 
-    await send_message(writer, sanitize_message(username))
+    await send_message(writer, sanitize_message(nickname))
 
     data = await reader.readline()
     response = json.loads(data.decode())
