@@ -2,6 +2,7 @@ import asyncio
 import sys
 import datetime
 import argparse
+import logging
 
 import aiofiles
 from environs import Env
@@ -35,7 +36,7 @@ async def read_messenger(reader, history_path):
             async with aiofiles.open(history_path, mode='a', encoding='utf-8') as f:
                 await f.write(message + '\n')
 
-            print(message, file=sys.stdout)
+            logging.debug(message)
         except UnicodeDecodeError:
             continue
 
@@ -49,17 +50,19 @@ async def get_messenger_connection(host, port, history_path):
     async with aiofiles.open(history_path, mode='w', encoding='utf-8') as f:
         await f.write(message+'\n')
 
-    print(message, file=sys.stdout)
+    logging.debug(message)
 
     await read_messenger(reader, history_path)
 
-    print('Close the connection', file=sys.stdout)
+    logging.debug('Close the connection')
     writer.close()
 
 
 if __name__ == '__main__':
     env = Env()
     env.read_env()
+
+    logging.basicConfig(level=logging.DEBUG)
 
     args = arg_parser(env('HOST', HOST), env('PORT', PORT), env('HISTORY_PATH', HISTORY_PATH))
     asyncio.run(get_messenger_connection(args.host, args.port, args.history_path))
