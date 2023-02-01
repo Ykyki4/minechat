@@ -1,5 +1,6 @@
 import asyncio
 import argparse
+import json
 import sys
 import logging
 
@@ -38,6 +39,10 @@ async def get_messenger_connection(host, port, message, user_hash):
     await send_message(writer, user_hash)
 
     data = await reader.readline()
+    if json.loads(data) is None:
+        logging.debug('Invalid token. Check it out or register again.')
+        writer.close()
+        return 
     logging.debug(data.decode())
 
     await send_message(writer, message)
