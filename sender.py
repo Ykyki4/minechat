@@ -1,6 +1,7 @@
 import asyncio
 import argparse
 import sys
+import logging
 
 from environs import Env
 
@@ -24,6 +25,7 @@ async def send_message(writer, message):
     message = message.encode(encoding="utf-8") + b'\n\n'
     writer.write(message)
     await writer.drain()
+    logging.debug(f'message {message} has been sent')
 
 
 async def get_messenger_connection(host, port, message, user_hash):
@@ -31,12 +33,12 @@ async def get_messenger_connection(host, port, message, user_hash):
         host, port)
 
     data = await reader.readline()
-    print(data.decode(), file=sys.stdout)
+    logging.debug(data.decode())
 
     await send_message(writer, user_hash)
 
     data = await reader.readline()
-    print(data.decode(), file=sys.stdout)
+    logging.debug(data.decode())
 
     await send_message(writer, message)
 
@@ -46,6 +48,8 @@ async def get_messenger_connection(host, port, message, user_hash):
 if __name__ == '__main__':
     env = Env()
     env.read_env()
+
+    logging.basicConfig(level=logging.DEBUG)
 
     args = arg_parser(env('HOST', HOST), env('PORT', PORT))
     asyncio.run(get_messenger_connection(args.host, args.port, args.message, args.user_hash))
