@@ -2,6 +2,10 @@ import logging
 import json
 
 
+def sanitize_message(messages):
+    return messages.strip().replace('\r', '').replace('\n', '')
+
+
 async def send_message(writer, message):
     message = message.encode(encoding='utf-8')+b'\n'
     writer.write(message)
@@ -18,7 +22,7 @@ async def register(reader, writer, username):
     data = await reader.readline()
     logging.debug(data.decode())
 
-    await send_message(writer, username)
+    await send_message(writer, sanitize_message(username))
 
     data = await reader.readline()
     response = json.loads(data.decode())
@@ -39,7 +43,7 @@ async def authorize(reader, writer, user_hash, message):
     data = await reader.readline()
     logging.debug(data.decode())
 
-    await send_message(writer, user_hash)
+    await send_message(writer, sanitize_message(user_hash))
 
     data = await reader.readline()
     if json.loads(data) is None:
@@ -50,6 +54,6 @@ async def authorize(reader, writer, user_hash, message):
     logging.debug(f'Authorized. Name: {response.get("nickname")}, hash: {response.get("account_hash")}')
 
     # Именно для отправки сообщения в чат требуется добавить два '\n', в остальных случаях всё нормально с одним.
-    await send_message(writer, message + '\n')
+    await send_message(writer, sanitize_message(message)+'\n')
 
     writer.close()

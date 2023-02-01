@@ -4,7 +4,7 @@ import logging
 
 from environs import Env
 
-from helpers import authorize, register,
+from helpers import authorize, register
 
 
 HOST = 'minechat.dvmn.org'
