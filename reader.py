@@ -66,5 +66,3 @@ if __name__ == '__main__':
 
     args = arg_parser(env('HOST', HOST), env('PORT', PORT), env('HISTORY_PATH', HISTORY_PATH))
     asyncio.run(get_messenger_connection(args.host, args.port, args.history_path))
-
-# 7e634226-a215-11ed-8c47-0242ac110002
