@@ -16,7 +16,7 @@ def arg_parser(host, port, nickname, user_hash):
 
     parser.add_argument('message', type=str, help='Message to send')
     parser.add_argument('-n', '--nickname', type=str, help='Nickname you want to use', default=nickname)
-    parser.add_argument('-ha', '--hash', type=str, help='Your user hash', default=user_hash)
+    parser.add_argument('-uh', '--user_hash', type=str, help='Your user hash', default=user_hash)
     parser.add_argument('-ho', '--host', type=str, help='Host of minechat', default=host)
     parser.add_argument('-p', '--port', type=int, help='Port of minechat', default=port)
 
