@@ -26,21 +26,21 @@ def arg_parser(host, port, history_path):
 
 
 async def read_messenger(reader, history_path):
-    while True:
-        data = await reader.read(100)
-        if not data:
-            break
-        try:
-            current_datetime = datetime.datetime.now().strftime("%d.%m.%Y %H:%M")
+    async with aiofiles.open(history_path, mode='a', encoding='utf-8') as f:
+        while True:
+            data = await reader.read(100)
+            if not data:
+                break
+            try:
+                current_datetime = datetime.datetime.now().strftime("%d.%m.%Y %H:%M")
 
-            message = f'[{current_datetime}] {data.decode().strip()}'
+                message = f'[{current_datetime}] {data.decode().strip()}'
 
-            async with aiofiles.open(history_path, mode='a', encoding='utf-8') as f:
                 await f.write(message + '\n')
 
-            logging.debug(message)
-        except UnicodeDecodeError:
-            continue
+                logging.debug(message)
+            except UnicodeDecodeError:
+                continue
 
 
 async def get_messenger_connection(host, port, history_path):
