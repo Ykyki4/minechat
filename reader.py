@@ -53,10 +53,11 @@ async def get_messenger_connection(host, port, history_path):
 
     logging.debug(message)
 
-    await read_messenger(reader, history_path)
-
-    logging.debug('Close the connection')
-    writer.close()
+    try:
+        await read_messenger(reader, history_path)
+    finally:
+        logging.debug('Close the connection')
+        writer.close()
 
 
 if __name__ == '__main__':
