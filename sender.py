@@ -4,7 +4,7 @@ import logging
 
 from environs import Env
 
-from helpers import authorize, register
+from helpers import authorize, register, send_message, sanitize_message
 
 
 HOST = 'minechat.dvmn.org'
@@ -28,13 +28,23 @@ async def get_messenger_connection(args):
         args.host, args.port)
 
     if args.user_hash is not None:
-        await authorize(reader, writer, args.user_hash, args.message)
+        await authorize(reader, writer, args.user_hash)
+
+        # Именно для отправки сообщения в чат требуется добавить два '\n', в остальных случаях всё нормально с одним.
+        await send_message(writer, sanitize_message(args.message) + '\n')
+        writer.close()
 
     if args.nickname is not None:
         user_hash = await register(reader, writer, args.nickname)
+        writer.close()
+        
         reader, writer = await asyncio.open_connection(
             args.host, args.port)
-        await authorize(reader, writer, user_hash, args.message)
+        await authorize(reader, writer, user_hash)
+
+        # Именно для отправки сообщения в чат требуется добавить два '\n', в остальных случаях всё нормально с одним.
+        await send_message(writer, sanitize_message(args.message) + '\n')
+        writer.close()
 
 
 if __name__ == '__main__':

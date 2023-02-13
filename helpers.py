@@ -34,12 +34,10 @@ async def register(reader, writer, nickname):
     with open(f'{nickname}.txt', 'w', encoding='utf-8') as f:
         f.write(user_received_line)
 
-    writer.close()
-
     return user_hash
 
 
-async def authorize(reader, writer, user_hash, message):
+async def authorize(reader, writer, user_hash):
     received_line = await reader.readline()
     logging.debug(received_line.decode())
 
@@ -52,8 +50,3 @@ async def authorize(reader, writer, user_hash, message):
         return
     response = json.loads(received_line.decode())
     logging.debug(f'Authorized. Name: {response.get("nickname")}, hash: {response.get("account_hash")}')
-
-    # Именно для отправки сообщения в чат требуется добавить два '\n', в остальных случаях всё нормально с одним.
-    await send_message(writer, sanitize_message(message)+'\n')
-
-    writer.close()
