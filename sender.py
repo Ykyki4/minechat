@@ -26,14 +26,13 @@ def arg_parser(host, port, nickname, user_hash):
 async def get_messenger_connection(args):
     reader, writer = await asyncio.open_connection(args.host, args.port)
 
-    if args.user_hash is not None:
+    if args.user_hash:
         await authorize(reader, writer, args.user_hash)
 
         # Именно для отправки сообщения в чат требуется добавить два '\n', в остальных случаях всё нормально с одним.
         await send_message(writer, sanitize_message(args.message) + '\n')
         writer.close()
-
-    if args.nickname is not None:
+    elif args.nickname:
         user_hash = await register(reader, writer, args.nickname)
         writer.close()
 
@@ -43,6 +42,8 @@ async def get_messenger_connection(args):
         # Именно для отправки сообщения в чат требуется добавить два '\n', в остальных случаях всё нормально с одним.
         await send_message(writer, sanitize_message(args.message) + '\n')
         writer.close()
+    else:
+        logging.error('You need to pass only your hash or only your preferred nickname')
 
 
 if __name__ == '__main__':
