@@ -37,7 +37,7 @@ async def get_messenger_connection(args):
     if args.nickname is not None:
         user_hash = await register(reader, writer, args.nickname)
         writer.close()
-        
+
         reader, writer = await asyncio.open_connection(
             args.host, args.port)
         await authorize(reader, writer, user_hash)

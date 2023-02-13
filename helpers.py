@@ -44,9 +44,11 @@ async def authorize(reader, writer, user_hash):
     await send_message(writer, sanitize_message(user_hash))
 
     received_line = await reader.readline()
-    if json.loads(received_line) is None:
+    response = json.loads(received_line.decode())
+    
+    if response is None:
         logging.error('Invalid token. Check it out or register again.')
         writer.close()
         return
-    response = json.loads(received_line.decode())
+
     logging.debug(f'Authorized. Name: {response.get("nickname")}, hash: {response.get("account_hash")}')
