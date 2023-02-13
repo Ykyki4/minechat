@@ -45,7 +45,7 @@ async def authorize(reader, writer, user_hash):
 
     received_line = await reader.readline()
     response = json.loads(received_line.decode())
-    
+
     if response is None:
         logging.error('Invalid token. Check it out or register again.')
         writer.close()

@@ -1,5 +1,4 @@
 import asyncio
-import sys
 import datetime
 import argparse
 import logging
@@ -18,7 +17,10 @@ def arg_parser(host, port, history_path):
 
     parser.add_argument('-ho', '--host', type=str, help='Host of minechat', default=host)
     parser.add_argument('-p', '--port', type=int, help='Port of minechat', default=port)
-    parser.add_argument('-hp', '--history_path', type=str, help='Path to file where store minechat history', default=history_path)
+    parser.add_argument('-hp', '--history_path',
+                        type=str,
+                        help='Path to file where store minechat history',
+                        default=history_path)
 
     return parser.parse_args()
 
@@ -42,8 +44,7 @@ async def read_messenger(reader, history_path):
 
 
 async def get_messenger_connection(host, port, history_path):
-    reader, writer = await asyncio.open_connection(
-        host, port)
+    reader, writer = await asyncio.open_connection(host, port)
 
     message = f'[{datetime.datetime.now().strftime("%d.%m.%Y %H:%M")}] Установлено соединение'
 

@@ -24,8 +24,7 @@ def arg_parser(host, port, nickname, user_hash):
 
 
 async def get_messenger_connection(args):
-    reader, writer = await asyncio.open_connection(
-        args.host, args.port)
+    reader, writer = await asyncio.open_connection(args.host, args.port)
 
     if args.user_hash is not None:
         await authorize(reader, writer, args.user_hash)
@@ -38,8 +37,7 @@ async def get_messenger_connection(args):
         user_hash = await register(reader, writer, args.nickname)
         writer.close()
 
-        reader, writer = await asyncio.open_connection(
-            args.host, args.port)
+        reader, writer = await asyncio.open_connection(args.host, args.port)
         await authorize(reader, writer, user_hash)
 
         # Именно для отправки сообщения в чат требуется добавить два '\n', в остальных случаях всё нормально с одним.
