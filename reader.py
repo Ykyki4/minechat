@@ -2,6 +2,7 @@ import asyncio
 import datetime
 import argparse
 import logging
+import os
 
 import aiofiles
 from environs import Env
@@ -25,22 +26,21 @@ def arg_parser(host, port, history_path):
     return parser.parse_args()
 
 
-async def read_messenger(reader, history_path):
-    async with aiofiles.open(history_path, mode='a', encoding='utf-8') as f:
-        while True:
-            data = await reader.read(100)
-            if not data:
-                break
-            try:
-                current_datetime = datetime.datetime.now().strftime("%d.%m.%Y %H:%M")
+async def read_messenger(reader, file):
+    while True:
+        data = await reader.read(100)
+        if not data:
+            break
+        try:
+            current_datetime = datetime.datetime.now().strftime("%d.%m.%Y %H:%M")
 
-                message = f'[{current_datetime}] {data.decode().strip()}'
+            message = f'[{current_datetime}] {data.decode().strip()}'
 
-                await f.write(message + '\n')
+            await file.write(message + '\n')
 
-                logging.debug(message)
-            except UnicodeDecodeError:
-                continue
+            logging.debug(message)
+        except UnicodeDecodeError:
+            continue
 
 
 async def get_messenger_connection(host, port, history_path):
@@ -48,16 +48,16 @@ async def get_messenger_connection(host, port, history_path):
 
     message = f'[{datetime.datetime.now().strftime("%d.%m.%Y %H:%M")}] Установлено соединение'
 
-    async with aiofiles.open(history_path, mode='w', encoding='utf-8') as f:
-        await f.write(message+'\n')
+    async with aiofiles.open(history_path, mode='a' if os.path.exists(history_path) else 'w', encoding='utf-8') as file:
+        await file.write(message+'\n')
 
-    logging.debug(message)
+        logging.debug(message)
 
-    try:
-        await read_messenger(reader, history_path)
-    finally:
-        logging.debug('Close the connection')
-        writer.close()
+        try:
+            await read_messenger(reader, file)
+        finally:
+            logging.debug('Close the connection')
+            writer.close()
 
 
 if __name__ == '__main__':
