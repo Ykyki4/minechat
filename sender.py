@@ -27,12 +27,10 @@ async def get_messenger_connection(args):
     reader, writer = await asyncio.open_connection(
         args.host, args.port)
 
-    if args.hash is not None:
-        print('authorize')
-        await authorize(reader, writer, args.hash, args.message)
+    if args.user_hash is not None:
+        await authorize(reader, writer, args.user_hash, args.message)
 
     if args.nickname is not None:
-        print('register')
         user_hash = await register(reader, writer, args.nickname)
         reader, writer = await asyncio.open_connection(
             args.host, args.port)
