@@ -25,9 +25,8 @@ def arg_parser(host, port, nickname, user_hash):
 
 async def get_messenger_connection(args):
     reader, writer = await asyncio.open_connection(args.host, args.port)
-
-    if args.user_hash:
-        try:
+    try:
+        if args.user_hash:
             authorize_response = await authorize(reader, writer, args.user_hash)
             if authorize_response is None:
                 logging.error('Invalid token. Check it out or register again.')
@@ -35,19 +34,20 @@ async def get_messenger_connection(args):
 
             # Именно для отправки сообщения в чат требуется добавить два '\n', в остальных случаях всё нормально с одним.
             await send_message(writer, sanitize_message(args.message) + '\n')
-        finally:
+        elif args.nickname:
+            user_hash = await register(reader, writer, args.nickname)
             writer.close()
-    elif args.nickname:
-        user_hash = await register(reader, writer, args.nickname)
-        writer.close()
+            await writer.wait_closed()
 
-        reader, writer = await asyncio.open_connection(args.host, args.port)
-        await authorize(reader, writer, user_hash)
-        # Именно для отправки сообщения в чат требуется добавить два '\n', в остальных случаях всё нормально с одним.
-        await send_message(writer, sanitize_message(args.message) + '\n')
-        writer.close()
-    else:
-        logging.error('You need to pass only your hash or only your preferred nickname')
+            reader, writer = await asyncio.open_connection(args.host, args.port)
+            await authorize(reader, writer, user_hash)
+            # Именно для отправки сообщения в чат требуется добавить два '\n', в остальных случаях всё нормально с одним.
+            await send_message(writer, sanitize_message(args.message) + '\n')
+        else:
+            logging.error('You need to pass only your hash or only your preferred nickname')
+    finally:
+            writer.close()
+            await writer.wait_closed()
 
 
 if __name__ == '__main__':
