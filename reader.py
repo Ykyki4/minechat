@@ -47,8 +47,12 @@ async def get_messenger_connection(host, port, history_path):
     reader, writer = await asyncio.open_connection(host, port)
 
     message = f'[{datetime.datetime.now().strftime("%d.%m.%Y %H:%M")}] Установлено соединение'
+    if os.path.exists(history_path):
+        mode = 'a'
+    else:
+        mode = 'w'
 
-    async with aiofiles.open(history_path, mode='a' if os.path.exists(history_path) else 'w', encoding='utf-8') as file:
+    async with aiofiles.open(history_path, mode=mode, encoding='utf-8') as file:
         await file.write(message+'\n')
 
         logging.debug(message)
