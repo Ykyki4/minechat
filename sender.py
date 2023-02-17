@@ -27,18 +27,22 @@ async def get_messenger_connection(args):
     reader, writer = await asyncio.open_connection(args.host, args.port)
 
     if args.user_hash:
-        await authorize(reader, writer, args.user_hash)
+        try:
+            authorize_response = await authorize(reader, writer, args.user_hash)
+            if authorize_response is None:
+                logging.error('Invalid token. Check it out or register again.')
+                return
 
-        # Именно для отправки сообщения в чат требуется добавить два '\n', в остальных случаях всё нормально с одним.
-        await send_message(writer, sanitize_message(args.message) + '\n')
-        writer.close()
+            # Именно для отправки сообщения в чат требуется добавить два '\n', в остальных случаях всё нормально с одним.
+            await send_message(writer, sanitize_message(args.message) + '\n')
+        finally:
+            writer.close()
     elif args.nickname:
         user_hash = await register(reader, writer, args.nickname)
         writer.close()
 
         reader, writer = await asyncio.open_connection(args.host, args.port)
         await authorize(reader, writer, user_hash)
-
         # Именно для отправки сообщения в чат требуется добавить два '\n', в остальных случаях всё нормально с одним.
         await send_message(writer, sanitize_message(args.message) + '\n')
         writer.close()

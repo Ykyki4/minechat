@@ -47,8 +47,6 @@ async def authorize(reader, writer, user_hash):
     response = json.loads(received_line.decode())
 
     if response is None:
-        logging.error('Invalid token. Check it out or register again.')
-        writer.close()
         return
 
     logging.debug(f'Authorized. Name: {response.get("nickname")}, hash: {response.get("account_hash")}')
